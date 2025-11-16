@@ -12,33 +12,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Firebase Imports -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { auth, db } from './firebase.js'; // Adjust path if necessary
 
-        // --- Firebase Configuration ---
-        // Use environment variables provided by the Canvas environment
-          
-   const firebaseConfig = {
+        import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
-  apiKey: "AIzaSyBQKq1YggF3GjajZAmjHYtGmZk0ihPJwRs",
+        import { collection, getDocs } from 'firebase/firestore'; // For example Firestore usage
 
-  authDomain: "moneyzoltan-68329.firebaseapp.com",
+        
+        if (user) {
 
-  projectId: "moneyzoltan-68329",
+    // User is signed in (or was restored from a previous session)
+    console.log("User is signed in:", user.uid);
 
-  storageBucket: "moneyzoltan-68329.firebasestorage.app",
+    // Now you can safely access Firestore, knowing a user is authenticated
+    try {
+      const querySnapshot = await getDocs(collection(db, "yourCollectionName"));
+      querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+      });
+      console.log("Successfully connected to Firestore!");
+    } catch (firestoreError) {
+      console.error("Error connecting to Firestore:", firestoreError);
+      // Handle Firestore errors
+    }
+  } else {
+    // No user is signed in. Attempt anonymous sign-in.
+    console.log("No user signed in. Attempting anonymous sign-in...");
+    try {
+      await signInAnonymously(auth);
+      // onAuthStateChanged will be called again once signed in
+    } catch (error) {
+      console.error("Error signing in anonymously:", error);
+      // Handle anonymous sign-in errors
+      alert("Could not sign in. Please check your internet connection or try again later.");
+    }
+  }
+});
 
-  messagingSenderId: "969689374570",
-
-  appId: "1:969689374570:web:06b24cafc605bf78f94f13",
-
-  measurementId: "G-PQW8QDLY5Q"
-
-};
-const app = initializeApp(firebaseConfig);
-
-const analytics = getAnalytics(app);
 
 
         // --- App State ---
